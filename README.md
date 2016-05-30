@@ -1,4 +1,4 @@
-# Pry [![Travis-CI](https://api.travis-ci.org/ostera/pry.svg)](https://travis-ci.org/ostera/schrodinger)
+# Pry [![Travis-CI](https://api.travis-ci.org/ostera/pry.svg)](https://travis-ci.org/ostera/pry)
 > Watch your application spawn an unfold right in front of you 🔭
 
 ## Tutorial

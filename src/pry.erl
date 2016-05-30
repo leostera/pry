@@ -37,10 +37,10 @@ test() -> start(), test(10).
 
 test(0) -> ok;
 test(N) ->
- erlang:spawn(fun () ->
-                  erlang:spawn(pry, dummy, [N])
-              end),
- test(N-1).
+  erlang:spawn(fun () ->
+                   erlang:spawn(pry, dummy, [N])
+               end),
+  test(N-1).
 
 dummy(N) ->
   receive
