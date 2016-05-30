@@ -1,9 +1,9 @@
-pry
-=====
+# Pry [![Travis-CI](https://api.travis-ci.org/ostera/pry.svg)](https://travis-ci.org/ostera/schrodinger)
+> Watch your application spawn an unfold right in front of you 🔭
 
-An OTP application
+## Tutorial
 
-Build
------
-
-    $ rebar3 compile
+```erlang
+1> pry:test().
+% see timestamped logs of what MFA was spawned at what time
+```
