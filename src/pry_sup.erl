@@ -22,14 +22,24 @@
 start_link() ->
     supervisor:start_link({local, ?SERVER}, ?MODULE, []).
 
-%%====================================================================
-%% Supervisor callbacks
-%%====================================================================
 
-%% Child :: {Id,StartFunc,Restart,Shutdown,Type,Modules}
 init([]) ->
-    {ok, { {one_for_all, 0, 1}, []} }.
+    {ok, { supervision_flags(), child_specs() } }.
 
 %%====================================================================
 %% Internal functions
 %%====================================================================
+
+supervision_flags() -> #{
+  strategy  => one_for_all,
+  intensity => 0,
+  peiord    => 1
+}.
+
+child_specs() -> [ #{
+  id       => pry,
+  restart  => permanent,
+  shutdown => brutal_kill,
+  start    => { pry_server, start_link, [] },
+  type     => worker
+ } ].

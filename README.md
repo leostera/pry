@@ -4,6 +4,8 @@
 ## Tutorial
 
 ```erlang
-1> pry:test().
-% see timestamped logs of what MFA was spawned at what time
+1> application:start(pry).
+% the pry sup gets started
+% the pry server gets started
+% the pry server will store all events in an ets table
 ```
