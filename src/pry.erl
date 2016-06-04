@@ -25,14 +25,17 @@
 -type event()  :: #{}.
 -type events() :: [ {timestamp(), event()} ].
 
+-type server_state() :: #{}.
+
 -export_type([
-              name/0,
-              timestamp/0,
-              value/0,
-              key/0,
-              info/0,
               event/0,
-              events/0
+              events/0,
+              info/0,
+              key/0,
+              name/0,
+              server_state/0,
+              timestamp/0,
+              value/0
              ]).
 
 %%====================================================================

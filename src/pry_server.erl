@@ -20,9 +20,11 @@
 %% API functions
 %%====================================================================
 
+-spec start_link() -> {'ok', pid()}.
 start_link() ->
   gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
+-spec initial_state() -> #{}.
 initial_state() ->
   #{
     table => create_table(),
@@ -34,6 +36,7 @@ initial_state() ->
   }.
 
 
+-spec init(list()) -> {ok, #{}}.
 init([]) ->
   State = initial_state(),
   {ok, State}.
@@ -51,15 +54,20 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal functions
 %%====================================================================
 
+-spec table_name() -> atom().
 table_name() -> pry_events.
 
+-spec create_table() -> atom().
 create_table() ->
   ets:new(table_name(), [ named_table ]).
 
+-spec initial_trace_value() -> atom().
 initial_trace_value() -> initializing.
 
+-spec tracer_options() -> { fun(), term() }.
 tracer_options() -> {fun tracer_filter/2, initial_trace_value()}.
 
+-spec start_tracer() -> pid().
 start_tracer() ->
   {ok, TracerPid} = dbg:tracer(process, tracer_options()),
   TracerPid.
@@ -93,9 +101,11 @@ tracer_filter({trace, Parent, return_from, _, Child}, ok) ->
   end;
 tracer_filter(_, _) -> ok.
 
+-spec track(pry:event()) -> ok.
 track(Event) ->
   gen_server:cast(?MODULE, {track, Event}).
 
+-spec publish(pry:event()) -> ok.
 publish(_) -> ok.
 
 %%====================================================================
