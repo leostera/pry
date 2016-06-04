@@ -6,6 +6,7 @@
 
 -export([
           dump/0,
+          dump_to_file/1,
           test/0,
           test/1,
           dummy/1
@@ -45,6 +46,10 @@
 -spec dump() -> events().
 dump() ->
   gen_server:call(pry_server, dump).
+
+-spec dump_to_file(<<>>) -> ok.
+dump_to_file(Path) ->
+  file:write_file(Path, io_lib:fwrite("~p", [dump()])).
 
 -spec test() -> ok.
 test() -> test(10).

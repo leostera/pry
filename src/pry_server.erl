@@ -45,6 +45,7 @@ handle_info(_Info, State) ->
   {noreply, State}.
 
 terminate(_Reason, _State) ->
+  stop_tracer(),
   ok.
 
 code_change(_OldVsn, State, _Extra) ->
@@ -67,6 +68,10 @@ initial_trace_value() -> initializing.
 -spec tracer_options() -> { fun(), term() }.
 tracer_options() -> {fun tracer_filter/2, initial_trace_value()}.
 
+-spec stop_tracer() -> ok.
+stop_tracer() ->
+  dbg:stop_and_clear().
+
 -spec start_tracer() -> pid().
 start_tracer() ->
   {ok, TracerPid} = dbg:tracer(process, tracer_options()),
@@ -76,10 +81,13 @@ trace_all_processes() -> dbg:p(all,call).
 
 tracer_match_options() -> [{'_',[],[{return_trace}]}].
 
-tracer_match_spec() -> {erlang, spawn, '_'}.
+tracer_match_specs() -> [
+                         {erlang, spawn, '_'},
+                         {erlang, spawn_link, '_'}
+                        ].
 
 trace_all_spawn_calls() ->
-  dbg:tpl( tracer_match_spec(), tracer_match_options() ).
+  [ dbg:tpl( Spec, tracer_match_options() ) || Spec <- tracer_match_specs() ].
 
 tracer_filter({trace, Parent, return_from, _, Child}, ok) ->
   ProcessInfo = process_info(Child),
