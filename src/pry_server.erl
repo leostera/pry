@@ -70,7 +70,7 @@ tracer_options() -> {fun tracer_filter/2, initial_trace_value()}.
 
 -spec stop_tracer() -> ok.
 stop_tracer() ->
-  dbg:stop_and_clear().
+  dbg:stop_clear().
 
 -spec start_tracer() -> pid().
 start_tracer() ->
@@ -105,24 +105,9 @@ tracer_filter({trace, _Parent, return_from, _, Child}=Trace, ok) ->
   end;
 tracer_filter(_, _) -> ok.
 
--spec modules_blacklist() -> [ atom() ].
-modules_blacklist() -> [
-                        string,epp,io_lib_pretty,lib,erl_internal,otp_internal,erl_scan,io,sets,dict,
-                        ordsets,erl_lint,erl_anno,erl_parse,ram_file,beam_lib,file_io_server,orddict,
-                        erl_eval,file,c,error_logger_tty_h,kernel_config,shell,queue,io_lib_format,
-                        proplists,io_lib,edlin,group,user_drv,user_sup,supervisor_bridge,
-                        standard_error,file_server,net_kernel,global_group,erl_distribution,
-                        inet_parse,inet,inet_udp,inet_config,inet_db,global,rpc,code_server,unicode,
-                        os,hipe_unified_loader,gb_trees,gb_sets,filename,ets,binary,code,supervisor,
-                        kernel,application_master,application,gen_server,lists,
-                        application_controller,proc_lib,gen,gen_event,error_logger,heart,
-                        error_handler,erts_internal,erlang,erl_prim_loader,prim_zip,zlib,prim_file,
-                        prim_inet,prim_eval,init,otp_ring0
-                       ].
-
 -spec mfa_filter(pry:process_info()) -> undefined | blacklisted | pry:process_info().
 mfa_filter([{ current_function, {M,_F,_A} } | _Rest ]=ProcessInfo) ->
-  case lists:member(M, modules_blacklist()) of
+  case lists:member(M, pry_blacklist:blacklist()) of
     true -> blacklisted;
     false -> ProcessInfo
   end;
