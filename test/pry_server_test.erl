@@ -23,13 +23,13 @@ beforeEach() ->
   start_server().
 
 afterEach(_Result) ->
-  io:format("~p.\n", [events()]),
   stop_server().
 
 -define( it(Name), { setup,
                      fun beforeEach/0,
                      fun afterEach/1,
                      fun () -> Name() end } ).
+
 
 %%====================================================================
 %% Tests
@@ -59,6 +59,7 @@ tracks_spawned_mfa_test_() -> ?it(fun() ->
   traceable_spawn(),
   ?assertEqual(event_count(), 1)
 end).
+
 
 %%====================================================================
 %% Test Helpers
