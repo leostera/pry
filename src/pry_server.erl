@@ -89,7 +89,8 @@ tracer_match_specs() -> [
 trace_all_spawn_calls() ->
   [ dbg:tpl( Spec, tracer_match_options() ) || Spec <- tracer_match_specs() ].
 
-tracer_filter({trace, Parent, return_from, _, Child}=Trace, ok) ->
+-spec tracer_filter(pry:trace_result(), ok | term()) -> ok.
+tracer_filter({trace, _Parent, return_from, _, Child}=Trace, ok) ->
   ProcessInfo = process_info(Child),
   case mfa_filter(ProcessInfo) of
     [{current_function, _MFA} | _Rest]  ->
@@ -104,6 +105,7 @@ tracer_filter({trace, Parent, return_from, _, Child}=Trace, ok) ->
   end;
 tracer_filter(_, _) -> ok.
 
+-spec modules_blacklist() -> [ atom() ].
 modules_blacklist() -> [
                         string,epp,io_lib_pretty,lib,erl_internal,otp_internal,erl_scan,io,sets,dict,
                         ordsets,erl_lint,erl_anno,erl_parse,ram_file,beam_lib,file_io_server,orddict,
@@ -118,6 +120,7 @@ modules_blacklist() -> [
                         prim_inet,prim_eval,init,otp_ring0
                        ].
 
+-spec mfa_filter(pry:process_info()) -> undefined | blacklisted | pry:process_info().
 mfa_filter([{ current_function, {M,_F,_A} } | _Rest ]=ProcessInfo) ->
   case lists:member(M, modules_blacklist()) of
     true -> blacklisted;
@@ -125,6 +128,7 @@ mfa_filter([{ current_function, {M,_F,_A} } | _Rest ]=ProcessInfo) ->
   end;
 mfa_filter(_) -> undefined.
 
+-spec build_event(pry:trace_result(), pry:process_info(), pry:timestamp()) -> pry:event().
 build_event({trace, Parent, return_from, _, Child}, [{current_function, MFA}|_T]=ProcessInfo, Timestamp) ->
  #{
    timestamp => Timestamp,
