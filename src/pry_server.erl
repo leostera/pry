@@ -89,25 +89,50 @@ tracer_match_specs() -> [
 trace_all_spawn_calls() ->
   [ dbg:tpl( Spec, tracer_match_options() ) || Spec <- tracer_match_specs() ].
 
-tracer_filter({trace, Parent, return_from, _, Child}, ok) ->
+tracer_filter({trace, Parent, return_from, _, Child}=Trace, ok) ->
   ProcessInfo = process_info(Child),
-  case ProcessInfo of
-    undefined -> ok;
-    [{current_function, MFA} | _Rest] ->
+  case mfa_filter(ProcessInfo) of
+    [{current_function, _MFA} | _Rest]  ->
       Timestamp = os:timestamp(),
-      Event = #{
-        timestamp => Timestamp,
-        parent => Parent,
-        self   => Child,
-        mfa    => MFA,
-        info   => ProcessInfo
-      },
+      Event = build_event(Trace, ProcessInfo, Timestamp),
       track(Event),
       publish(Event)
       %% setup link to know when it dies
       %% and when it dies, save an event as well
+      ;
+    _ -> ok
   end;
 tracer_filter(_, _) -> ok.
+
+modules_blacklist() -> [
+                        string,epp,io_lib_pretty,lib,erl_internal,otp_internal,erl_scan,io,sets,dict,
+                        ordsets,erl_lint,erl_anno,erl_parse,ram_file,beam_lib,file_io_server,orddict,
+                        erl_eval,file,c,error_logger_tty_h,kernel_config,shell,queue,io_lib_format,
+                        proplists,io_lib,edlin,group,user_drv,user_sup,supervisor_bridge,
+                        standard_error,file_server,net_kernel,global_group,erl_distribution,
+                        inet_parse,inet,inet_udp,inet_config,inet_db,global,rpc,code_server,unicode,
+                        os,hipe_unified_loader,gb_trees,gb_sets,filename,ets,binary,code,supervisor,
+                        kernel,application_master,application,gen_server,lists,
+                        application_controller,proc_lib,gen,gen_event,error_logger,heart,
+                        error_handler,erts_internal,erlang,erl_prim_loader,prim_zip,zlib,prim_file,
+                        prim_inet,prim_eval,init,otp_ring0
+                       ].
+
+mfa_filter([{ current_function, {M,_F,_A} } | _Rest ]=ProcessInfo) ->
+  case lists:member(M, modules_blacklist()) of
+    true -> blacklisted;
+    false -> ProcessInfo
+  end;
+mfa_filter(_) -> undefined.
+
+build_event({trace, Parent, return_from, _, Child}, [{current_function, MFA}|_T]=ProcessInfo, Timestamp) ->
+ #{
+   timestamp => Timestamp,
+   parent => Parent,
+   self   => Child,
+   mfa    => MFA,
+   info   => ProcessInfo
+  }.
 
 -spec track(pry:event()) -> ok.
 track(Event) ->

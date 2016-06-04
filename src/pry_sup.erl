@@ -20,11 +20,11 @@
 %%====================================================================
 
 start_link() ->
-    supervisor:start_link({local, ?SERVER}, ?MODULE, []).
+  supervisor:start_link({local, ?SERVER}, ?MODULE, []).
 
 
 init([]) ->
-    {ok, { supervision_flags(), child_specs() } }.
+  {ok, { supervision_flags(), child_specs() } }.
 
 %%====================================================================
 %% Internal functions
@@ -34,7 +34,7 @@ supervision_flags() -> #{
   strategy  => one_for_all,
   intensity => 0,
   peiord    => 1
-}.
+ }.
 
 child_specs() -> [ #{
   id       => pry,
