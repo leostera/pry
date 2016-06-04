@@ -2,9 +2,9 @@
 > Watch your application spawn an unfold right in front of you 🔭
 
 As of right now, `pry` is just a very simple application that will trace and store all of
-`erlang:spawn` and `erlang:spawn_link` calls being made until it's stopped.
+`erlang:spawn` and `erlang:spawn_link` calls being made for any non-standard Erlang module.
 
-It lets you dump the data to disk for later analysis.
+Have a look at `pry_blacklist` to see exactly what's being ignored.
 
 ## Tutorial
 
