@@ -89,7 +89,8 @@ ok
   self => <0.79.0>,
 
   % Timestamp when the tracer sent this process for tracking
-  timestamp => {1465,43729,784546}}j
+  timestamp => {1465,43729,784546}
+}
 ```
 
 ## Next Steps
