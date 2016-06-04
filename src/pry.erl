@@ -21,12 +21,14 @@
 
 -type value() :: tuple().
 -type key()   :: atom().
--type info()  :: [ {key(), value() } ].
+-type info()  :: undefined | [ {key(), value()} ].
 
 -type event()  :: #{}.
 -type events() :: [ {timestamp(), event()} ].
 
 -type server_state() :: #{}.
+
+-type trace_result() :: {trace, pid(), return_from, term(), pid()}.
 
 -export_type([
               event/0,
@@ -36,6 +38,7 @@
               name/0,
               server_state/0,
               timestamp/0,
+              trace_result/0,
               value/0
              ]).
 
@@ -57,9 +60,7 @@ test() -> test(10).
 -spec test(integer()) -> ok.
 test(N) when N =< 0 -> ok;
 test(N) ->
-  erlang:spawn(fun () ->
-                   erlang:spawn(pry, dummy, [N])
-               end),
+  erlang:spawn(pry_blacklist, blacklist, []),
   test(N-1).
 
 -spec dummy(integer()) -> true.

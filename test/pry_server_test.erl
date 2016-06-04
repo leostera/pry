@@ -36,30 +36,29 @@ afterEach(_Result) ->
 %%====================================================================
 
 server_creates_a_new_table_test_() -> ?it(fun () ->
-  ?assertEqual(event_count(), 0)
+  ?assertEqual(0, event_count())
 end).
 
 server_returns_the_tracked_events_test_() -> ?it(fun () ->
-  ?assertEqual(event_count(), 0),
+  ?assertEqual(0, event_count()),
   traceable_spawn(),
-  ?assertEqual(event_count(), 1)
+  ?assertEqual(1, event_count())
 end).
 
 ignores_spawned_lambdas_test_() -> ?it(fun() ->
   ignoreable_spawn(),
-  ?assertEqual(event_count(), 0)
+  ?assertEqual(0, event_count())
 end).
 
 ignores_spawned_if_blacklisted_test_() -> ?it(fun() ->
   blacklisted_spawn(),
-  ?assertEqual(event_count(), 0)
+  ?assertEqual(0, event_count())
 end).
 
 tracks_spawned_mfa_test_() -> ?it(fun() ->
   traceable_spawn(),
-  ?assertEqual(event_count(), 1)
+  ?assertEqual(1, event_count())
 end).
-
 
 %%====================================================================
 %% Test Helpers

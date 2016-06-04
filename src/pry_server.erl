@@ -6,6 +6,8 @@
 
 -behavior(gen_server).
 
+-compile([export_all]).
+
 -export([start_link/0]).
 
 %% gen_server callbacks
@@ -91,9 +93,9 @@ trace_all_spawn_calls() ->
 
 -spec tracer_filter(pry:trace_result(), ok | term()) -> ok.
 tracer_filter({trace, _Parent, return_from, _, Child}=Trace, ok) ->
-  ProcessInfo = process_info(Child),
+  ProcessInfo = process_info(Child, [dictionary, initial_call, current_stacktrace, current_function, current_location]),
   case mfa_filter(ProcessInfo) of
-    [{current_function, _MFA} | _Rest]  ->
+    {ok, _} ->
       Timestamp = os:timestamp(),
       Event = build_event(Trace, ProcessInfo, Timestamp),
       track(Event),
@@ -101,25 +103,38 @@ tracer_filter({trace, _Parent, return_from, _, Child}=Trace, ok) ->
       %% setup link to know when it dies
       %% and when it dies, save an event as well
       ;
-    _ -> ok
+    R -> R
   end;
 tracer_filter(_, _) -> ok.
 
--spec mfa_filter(pry:process_info()) -> undefined | blacklisted | pry:process_info().
-mfa_filter([{ current_function, {M,_F,_A} } | _Rest ]=ProcessInfo) ->
-  case lists:member(M, pry_blacklist:blacklist()) of
-    true -> blacklisted;
-    false -> ProcessInfo
-  end;
-mfa_filter(_) -> undefined.
+-spec mfa_filter(pry:info()) -> undefined | blacklisted | pry:process_dict().
+mfa_filter(undefined) -> undefined;
+mfa_filter(ProcessInfo) ->
+  io:format("filtering: ~p\n\n", [ProcessInfo]),
+  case get_mfa_from_process_dict(ProcessInfo) of
+    {M, _, _} ->
+      io:format("got module: ~p", [M]),
+      case lists:member(M, pry_blacklist:blacklist()) of
+        true -> blacklisted;
+        false -> {ok, ProcessInfo}
+      end;
+    none -> ignored
+  end.
 
--spec build_event(pry:trace_result(), pry:process_info(), pry:timestamp()) -> pry:event().
-build_event({trace, Parent, return_from, _, Child}, [{current_function, MFA}|_T]=ProcessInfo, Timestamp) ->
+get_mfa_from_process_dict(none) -> none;
+get_mfa_from_process_dict({ '$initial_call', MFA }) -> MFA;
+get_mfa_from_process_dict({ dictionary, Dict }) ->
+  get_mfa_from_process_dict(proplists:lookup('$initial_call', Dict));
+get_mfa_from_process_dict(Info) ->
+  get_mfa_from_process_dict(proplists:lookup(dictionary, Info)).
+
+-spec build_event(pry:trace_result(), pry:info(), pry:timestamp()) -> pry:event().
+build_event({trace, Parent, return_from, _, Child}, ProcessInfo, Timestamp) ->
  #{
    timestamp => Timestamp,
    parent => Parent,
    self   => Child,
-   mfa    => MFA,
+   mfa    => get_mfa_from_process_dict(ProcessInfo),
    info   => ProcessInfo
   }.
 
