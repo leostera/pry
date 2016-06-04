@@ -49,7 +49,7 @@ dump() ->
 
 -spec dump_to_file(<<>>) -> ok.
 dump_to_file(Path) ->
-  file:write_file(Path, io_lib:fwrite("~p", [dump()])).
+  file:write_file(Path, io_lib:fwrite("~p.\n", [dump()])).
 
 -spec test() -> ok.
 test() -> test(10).
