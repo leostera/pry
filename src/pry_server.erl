@@ -25,7 +25,7 @@ start_link() ->
 
 initial_state() ->
   #{
-    events => create_table(),
+    table => create_table(),
     tracer => start_tracer(),
     trace_specs => [
                     trace_all_processes(),
@@ -93,8 +93,8 @@ tracer_filter({trace, Parent, return_from, _, Child}, ok) ->
   end;
 tracer_filter(_, _) -> ok.
 
-track(#{ timestamp := Timestamp }=Event) ->
-  ets:insert(table_name(), {Timestamp, Event}).
+track(Event) ->
+  gen_server:cast(?MODULE, {track, Event}).
 
 publish(_) -> ok.
 
@@ -102,8 +102,10 @@ publish(_) -> ok.
 %% Handler functions
 %%====================================================================
 
-handle_cast(_, _) -> {noreply, not_implemented}.
+handle_cast({track, #{ timestamp := Timestamp }=Event}, #{ table := Table }=State) ->
+  ets:insert(Table, {Timestamp, Event}),
+  {noreply, State}.
 
-handle_call(dump, From, State) ->
-  Reply = [],
+handle_call(dump, _From, #{ table := Table }=State) ->
+  Reply = ets:tab2list(Table),
   {reply, Reply, State}.
