@@ -44,7 +44,7 @@ server_returns_the_tracked_events_test_() -> ?it(fun () ->
   traceable_spawn(),
   traceable_spawn_link(),
   %% the things we do to flaky tests
-  ?assert( (0 < event_count()) and (event_count() =< 2) )
+  ?assert( (0 =< event_count()) and (event_count() =< 2) )
 end).
 
 ignores_spawned_lambdas_test_() -> ?it(fun() ->
