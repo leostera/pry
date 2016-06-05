@@ -8,7 +8,7 @@
 %% Fixtures, Constants and Helpers
 %%====================================================================
 
-fixture_mfa(blacklisted) -> fixture_mfa(proc_lib);
+fixture_mfa(none) -> fixture_mfa(proc_lib);
 fixture_mfa(proc_lib) -> { proc_lib, init_p, 5 };
 fixture_mfa(m) -> pry;
 fixture_mfa(f) -> test;
@@ -26,16 +26,16 @@ fixture_process_with_dictionary() ->
     fixture_dictionary()
   ].
 
-fixture_blacklisted_call() ->
-  [ { initial_call, fixture_mfa(blacklisted) } ].
+fixture_none_call() ->
+  [ { initial_call, fixture_mfa(none) } ].
 
 
 %%====================================================================
 %% Tests
 %%====================================================================
 
-returns_none_for_blacklisted_calls_test() ->
-  Fixture = fixture_blacklisted_call(),
+returns_none_for_none_calls_test() ->
+  Fixture = fixture_none_call(),
   Module  = pry_utils:get_module_from_process_info(Fixture),
   ?assertEqual(none, Module).
 
@@ -49,6 +49,3 @@ digs_into_dictionary_if_initial_call_is_proc_lib_init_p_test() ->
   Module  = pry_utils:get_module_from_process_info(Fixture),
   ?assertEqual(fixture_mfa(m), Module).
 
-%%====================================================================
-%% Test Helpers
-%%====================================================================
