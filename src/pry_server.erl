@@ -119,7 +119,7 @@ mfa_filter(ProcessInfo) ->
   end.
 
 find_mfa({dictionary, Dict}, Info) ->
-  find_mfa(proplists:lookkup('$initial_call', Dict), Info);
+  find_mfa(proplists:lookup('$initial_call', Dict), Info);
 find_mfa({initial_call, {proclib, init, _}}, Info) ->
   find_mfa(proplists:lookup(dictionary, Info), Info);
 find_mfa({initial_call, MFA}, Info) ->
