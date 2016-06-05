@@ -10,10 +10,10 @@ compile:
 	$(REBAR) compile
 
 ct:
-	$(REBAR) ct --config .ct_spec -c true -v
+	$(REBAR) ct --config .ct_spec -c true
 
 unit:
-	$(REBAR) eunit -c true -v
+	$(REBAR) eunit -c true
 
 check:
 	$(REBAR) dialyzer
