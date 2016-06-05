@@ -110,7 +110,7 @@ mfa_filter(ProcessInfo) ->
   case get_module_from_process_info(ProcessInfo) of
     none   -> {error, no_initial_call};
     Module -> case pry_blacklist:is_blacklisted(Module) of
-              true -> io:format("Process was blacklisted - ~p", [ProcessInfo]),
+              true -> io:format("Process was blacklisted - ~p\n\n", [ProcessInfo]),
                       {error, blacklisted};
               false -> {ok, ProcessInfo}
             end
@@ -118,7 +118,7 @@ mfa_filter(ProcessInfo) ->
 
 find_mfa({dictionary, Dict}, Info) ->
   find_mfa(proplists:lookup('$initial_call', Dict), Info);
-find_mfa({initial_call, {proclib, init, _}}, Info) ->
+find_mfa({initial_call, {proc_lib, init_p, _}}, Info) ->
   find_mfa(proplists:lookup(dictionary, Info), Info);
 find_mfa({initial_call, MFA}, Info) ->
   find_mfa(MFA, Info);
