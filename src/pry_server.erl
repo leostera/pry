@@ -108,9 +108,7 @@ tracer_filter(_, _) -> ok.
 -spec mfa_filter(pry:process_info()) -> undefined | blacklisted | pry:process_info().
 mfa_filter(ProcessInfo) ->
   case get_module_from_process_info(ProcessInfo) of
-    none ->
-      io:format("Process had no initial_call - ~p", [ProcessInfo]),
-      {error, no_initial_call};
+    none   -> {error, no_initial_call};
     Module -> case pry_blacklist:is_blacklisted(Module) of
               true -> io:format("Process was blacklisted - ~p", [ProcessInfo]),
                       {error, blacklisted};
