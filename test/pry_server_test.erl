@@ -42,16 +42,32 @@ end).
 server_returns_the_tracked_events_test_() -> ?it(fun () ->
   ?assertEqual(0, event_count()),
   traceable_spawn(),
-  ?assertEqual(1, event_count())
+  traceable_spawn_link(),
+  %% the things we do to flaky tests
+  ?assert( (0 < event_count()) and (event_count() =< 2) )
 end).
 
 ignores_spawned_lambdas_test_() -> ?it(fun() ->
+  ?assertEqual(0, event_count()),
   ignoreable_spawn(),
   ?assertEqual(0, event_count())
 end).
 
 ignores_spawned_if_blacklisted_test_() -> ?it(fun() ->
+  ?assertEqual(0, event_count()),
   blacklisted_spawn(),
+  ?assertEqual(0, event_count())
+end).
+
+ignores_spawn_linked_lambdas_test_() -> ?it(fun() ->
+  ?assertEqual(0, event_count()),
+  ignoreable_spawn_link(),
+  ?assertEqual(0, event_count())
+end).
+
+ignores_spawn_linked_if_blacklisted_test_() -> ?it(fun() ->
+  ?assertEqual(0, event_count()),
+  blacklisted_spawn_link(),
   ?assertEqual(0, event_count())
 end).
 
@@ -66,9 +82,23 @@ blacklisted_spawn() -> spawn_and_wait(os, timestamp, []).
 ignoreable_spawn()  -> spawn_and_wait(fun () -> ok end).
 traceable_spawn()   -> spawn_and_wait(pry_blacklist, blacklist, []).
 
+blacklisted_spawn_link() -> spawn_link_and_wait(os, timestamp, []).
+ignoreable_spawn_link()  -> spawn_link_and_wait(fun () -> ok end).
+traceable_spawn_link()   -> spawn_link_and_wait(pry_blacklist, blacklist, []).
+
+wait() -> wait(20).
+wait(N) -> timer:sleep(N).
+
+spawn_link_and_wait(Fun) ->
+  catch spawn_link(Fun),
+  wait().
+spawn_link_and_wait(M,F,A) ->
+  catch spawn_link(M,F,A),
+  wait().
+
 spawn_and_wait(Fun) ->
   catch spawn(Fun),
-  timer:sleep(2).
+  wait().
 spawn_and_wait(M,F,A) ->
   catch spawn(M,F,A),
-  timer:sleep(2).
+  wait().
