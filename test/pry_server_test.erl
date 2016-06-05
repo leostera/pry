@@ -55,11 +55,6 @@ ignores_spawned_if_blacklisted_test_() -> ?it(fun() ->
   ?assertEqual(0, event_count())
 end).
 
-tracks_spawned_mfa_test_() -> ?it(fun() ->
-  traceable_spawn(),
-  ?assertEqual(1, event_count())
-end).
-
 %%====================================================================
 %% Test Helpers
 %%====================================================================
@@ -72,8 +67,8 @@ ignoreable_spawn()  -> spawn_and_wait(fun () -> ok end).
 traceable_spawn()   -> spawn_and_wait(pry_blacklist, blacklist, []).
 
 spawn_and_wait(Fun) ->
-  catch erlang:spawn(Fun),
+  catch spawn(Fun),
   timer:sleep(2).
 spawn_and_wait(M,F,A) ->
-  catch erlang:spawn(M,F,A),
+  catch spawn(M,F,A),
   timer:sleep(2).
