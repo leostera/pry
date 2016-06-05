@@ -107,7 +107,7 @@ tracer_filter(_, _) -> ok.
 
 -spec mfa_filter(pry:process_info()) -> undefined | blacklisted | pry:process_info().
 mfa_filter(ProcessInfo) ->
-  case get_module_from_process_info(ProcessInfo) of
+  case pry_utils:get_module_from_process_info(ProcessInfo) of
     none   -> {error, no_initial_call};
     Module -> case pry_blacklist:is_blacklisted(Module) of
               true -> io:format("Process was blacklisted - ~p\n\n", [ProcessInfo]),
@@ -116,27 +116,13 @@ mfa_filter(ProcessInfo) ->
             end
   end.
 
-find_mfa({dictionary, Dict}, Info) ->
-  find_mfa(proplists:lookup('$initial_call', Dict), Info);
-find_mfa({initial_call, {proc_lib, init_p, _}}, Info) ->
-  find_mfa(proplists:lookup(dictionary, Info), Info);
-find_mfa({initial_call, MFA}, Info) ->
-  find_mfa(MFA, Info);
-
-find_mfa({M,_,_}, _) -> M;
-find_mfa(_, _) -> none.
-
-get_module_from_process_info(ProcessInfo) when is_list(ProcessInfo) ->
-  find_mfa(proplists:lookup(initial_call, ProcessInfo), ProcessInfo);
-get_module_from_process_info(_) -> none.
-
 -spec build_event(pry:trace_result(), pry:process_info(), pry:timestamp()) -> pry:event().
 build_event({trace, Parent, return_from, _, Child}, ProcessInfo, Timestamp) ->
  #{
    timestamp => Timestamp,
    parent => Parent,
    self   => Child,
-   mfa    => get_module_from_process_info(ProcessInfo),
+   mfa    => pry_utils:get_module_from_process_info(ProcessInfo),
    info   => ProcessInfo
   }.
 
