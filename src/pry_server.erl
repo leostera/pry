@@ -97,10 +97,10 @@ trace_all_spawn_calls() ->
 tracer_filter({trace, Parent, return_from, N, {ok, Child}}=_Trace, ok) ->
   tracer_filter({trace, Parent, return_from, N, Child}, ok);
 tracer_filter({trace, _Parent, return_from, _, Child}=Trace, ok) ->
+  Timestamp = os:timestamp(),
   ProcessInfo = process_info(Child),
   case mfa_filter(ProcessInfo) of
     {ok, _}  ->
-      Timestamp = os:timestamp(),
       Event = build_event(Trace, ProcessInfo, Timestamp),
       track(Event),
       publish(Event)
