@@ -14,6 +14,7 @@ find_mfa({initial_call, {proc_lib, init_p, 5}}, Info) ->
 find_mfa({initial_call, MFA}, Info) ->
   find_mfa(MFA, Info);
 
+find_mfa({supervisor, Module, 1}, _) -> {Module, start_link, 0};
 find_mfa({_M,_F,_A}=MFA, _) -> MFA;
 find_mfa(_, _) -> none.
 
