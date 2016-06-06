@@ -36,16 +36,16 @@ fixture_none_call() ->
 
 returns_none_for_none_calls_test() ->
   Fixture = fixture_none_call(),
-  Module  = pry_utils:get_module_from_process_info(Fixture),
-  ?assertEqual(none, Module).
+  MFA = pry_utils:get_mfa_from_process_info(Fixture),
+  ?assertEqual(none, MFA).
 
 returns_initial_call_test() ->
   Fixture = fixture_process_with_initial_call(),
-  Module  = pry_utils:get_module_from_process_info(Fixture),
-  ?assertEqual(fixture_mfa(m), Module).
+  MFA = pry_utils:get_mfa_from_process_info(Fixture),
+  ?assertEqual(fixture_mfa(), MFA).
 
 digs_into_dictionary_if_initial_call_is_proc_lib_init_p_test() ->
   Fixture = fixture_process_with_dictionary(),
-  Module  = pry_utils:get_module_from_process_info(Fixture),
-  ?assertEqual(fixture_mfa(m), Module).
+  MFA = pry_utils:get_mfa_from_process_info(Fixture),
+  ?assertEqual(fixture_mfa(), MFA).
 

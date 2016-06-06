@@ -101,19 +101,20 @@ tracer_filter({trace, _Parent, return_from, _, Child}=Trace, ok) ->
       %% setup link to know when it dies
       %% and when it dies, save an event as well
       ;
-    {error, Error} -> Error
+    {error, Error} ->
+      io:format("Process was blacklisted - ~p\n\n", [ProcessInfo]),
+      Error
   end;
 tracer_filter(_, _) -> ok.
 
 -spec mfa_filter(pry:process_info()) -> undefined | blacklisted | pry:process_info().
 mfa_filter(ProcessInfo) ->
-  case pry_utils:get_module_from_process_info(ProcessInfo) of
+  case pry_utils:get_mfa_from_process_info(ProcessInfo) of
     none   -> {error, no_initial_call};
-    Module -> case pry_blacklist:is_blacklisted(Module) of
-              true -> io:format("Process was blacklisted - ~p\n\n", [ProcessInfo]),
-                      {error, blacklisted};
-              false -> {ok, ProcessInfo}
-            end
+    {M,_,_}-> case pry_blacklist:is_blacklisted(M) of
+                true  -> {error, blacklisted};
+                false -> {ok, ProcessInfo}
+              end
   end.
 
 -spec build_event(pry:trace_result(), pry:process_info(), pry:timestamp()) -> pry:event().
@@ -122,7 +123,7 @@ build_event({trace, Parent, return_from, _, Child}, ProcessInfo, Timestamp) ->
    timestamp => Timestamp,
    parent => Parent,
    self   => Child,
-   mfa    => pry_utils:get_module_from_process_info(ProcessInfo),
+   mfa    => pry_utils:get_mfa_from_process_info(ProcessInfo),
    info   => ProcessInfo
   }.
 
