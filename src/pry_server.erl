@@ -94,6 +94,8 @@ trace_all_spawn_calls() ->
   [ dbg:tpl( Spec, tracer_match_options() ) || Spec <- tracer_match_specs() ].
 
 -spec tracer_filter(pry:trace_result(), ok | term()) -> ok.
+tracer_filter({trace, Parent, return_from, N, {ok, Child}}=_Trace, ok) ->
+  tracer_filter({trace, Parent, return_from, N, Child}, ok);
 tracer_filter({trace, _Parent, return_from, _, Child}=Trace, ok) ->
   ProcessInfo = process_info(Child),
   case mfa_filter(ProcessInfo) of
