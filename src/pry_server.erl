@@ -83,7 +83,11 @@ tracer_match_options() -> [{'_',[],[{return_trace}]}].
 
 tracer_match_specs() -> [
                          {erlang, spawn, '_'},
-                         {erlang, spawn_link, '_'}
+                         {erlang, spawn_link, '_'},
+                         {proc_lib, spawn, '_'},
+                         {proc_lib, spawn_link, '_'},
+                         {proc_lib, start, '_'},
+                         {proc_lib, start_link, '_'}
                         ].
 
 trace_all_spawn_calls() ->
