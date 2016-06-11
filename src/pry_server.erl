@@ -91,7 +91,7 @@ handle_cast({track, Event}, #{ table := Table, publishers := Publishers }=State)
 handle_call({add_publisher, Pid}, _From, #{ publishers := Publishers }=State) ->
   NewPubs = [ Pid | Publishers ],
   NewState = State#{ publishers => NewPubs },
-  {reply, NewPubs, NewState};
+  {reply, ok, NewState};
 
 handle_call(dump, _From, #{ table := Table }=State) ->
   Reply = State#{ table => ets:tab2list(Table) },
