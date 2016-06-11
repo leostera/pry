@@ -26,6 +26,9 @@
 -type event()  :: #{}.
 -type events() :: [ {timestamp(), event()} ].
 
+-type publisher() :: pid().
+-type publishers() :: [ publisher() ].
+
 -type server_state() :: #{}.
 
 -type trace_result() :: {trace, pid(), return_from, term(), pid()}.
@@ -36,6 +39,8 @@
               info/0,
               key/0,
               name/0,
+              publisher/0,
+              publishers/0,
               server_state/0,
               timestamp/0,
               trace_result/0,

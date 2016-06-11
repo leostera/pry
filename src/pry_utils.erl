@@ -2,8 +2,16 @@
 
 -export([
          find_mfa/2,
-         get_mfa_from_process_info/1
+         get_mfa_from_process_info/1,
+         default/3
         ]).
+
+-spec default(atom(), pry:info(), term()) -> term().
+default(Key, Options, Default) ->
+  case proplists:lookup(Key, Options) of
+    none -> Default;
+    {Key, Val} -> Val
+  end.
 
 find_mfa({'$initial_call', MFA}, Info) ->
   find_mfa(MFA, Info);

@@ -4,6 +4,8 @@
 %%%-------------------------------------------------------------------
 -module(pry_server).
 
+-include_lib("eunit/include/eunit.hrl").
+
 -behavior(gen_server).
 
 -export([start_link/0]).
@@ -29,17 +31,17 @@ name() -> ?MODULE.
 start_link() ->
   gen_server:start_link({local, name()}, name(), [], []).
 
--spec initial_state() -> #{}.
-initial_state() ->
+-spec initial_state(list()) -> #{}.
+initial_state(Options) ->
   #{
     table => create_table(),
-    tracer => pry_tracer:start()
-  }.
-
+    tracer => pry_tracer:start(),
+    publishers => publishers(Options)
+   }.
 
 -spec init(list()) -> {ok, #{}}.
-init([]) ->
-  State = initial_state(),
+init(Options) ->
+  State = initial_state(Options),
   {ok, State}.
 
 handle_info(_Info, State) ->
@@ -56,6 +58,10 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal functions
 %%====================================================================
 
+-spec publishers(pry:info()) -> pry:publishers().
+publishers(Options) ->
+  [ self() | pry_utils:default(publishers, Options, []) ].
+
 -spec table_name() -> atom().
 table_name() -> pry_events.
 
@@ -63,28 +69,30 @@ table_name() -> pry_events.
 create_table() ->
   ets:new(table_name(), [ named_table ]).
 
--spec track(pry:event(), pry:server_state()) -> true.
-track(#{ timestamp := Timestamp }=Event, #{ table := Table }) ->
+-spec track(pry:event(), atom()) -> true.
+track(#{ timestamp := Timestamp }=Event, Table) ->
   ets:insert(Table, {Timestamp, Event}).
 
 -spec publish(pry:event(), pry:publishers()) -> done.
 publish(_, []) -> done;
 publish(Event, [ Publisher | Rest ]) ->
   Publisher ! Event,
-  publish(Event, Rest);
-publish(Event, #{ publishers := Publishers }) ->
-  publish(Event, Publishers);
-publish(_, _) -> done.
+  publish(Event, Rest).
 
 %%====================================================================
 %% Handler functions
 %%====================================================================
 
-handle_cast({track, Event}, State) ->
-  track(Event, State),
-  publish(Event, State),
+handle_cast({track, Event}, #{ table := Table, publishers := Publishers }=State) ->
+  true = track(Event, Table),
+  done = publish(Event, Publishers),
   {noreply, State}.
 
+handle_call({add_publisher, Pid}, _From, #{ publishers := Publishers }=State) ->
+  NewPubs = [ Pid | Publishers ],
+  NewState = State#{ publishers => NewPubs },
+  {reply, NewPubs, NewState};
+
 handle_call(dump, _From, #{ table := Table }=State) ->
-  Reply = ets:tab2list(Table),
+  Reply = State#{ table => ets:tab2list(Table) },
   {reply, Reply, State}.
