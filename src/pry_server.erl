@@ -63,12 +63,16 @@ table_name() -> pry_events.
 create_table() ->
   ets:new(table_name(), [ named_table ]).
 
+-spec track(pry:event(), pry:server_state()) -> true.
+track(#{ timestamp := Timestamp }=Event, #{ table := Table }) ->
+  ets:insert(Table, {Timestamp, Event}).
+
 %%====================================================================
 %% Handler functions
 %%====================================================================
 
-handle_cast({track, #{ timestamp := Timestamp }=Event}, #{ table := Table }=State) ->
-  ets:insert(Table, {Timestamp, Event}),
+handle_cast({track, Event}, State) ->
+  track(Event, State),
   {noreply, State}.
 
 handle_call(dump, _From, #{ table := Table }=State) ->
