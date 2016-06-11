@@ -63,7 +63,6 @@ filter({trace, _Parent, return_from, _, Child}=Trace, ok) ->
       %% and when it dies, save an event as well
       ;
     {error, Error} ->
-      io:format("Process was blacklisted - ~p\n\n", [ProcessInfo]),
       Error
   end;
 filter(_, _) -> ok.
