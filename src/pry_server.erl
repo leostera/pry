@@ -67,12 +67,22 @@ create_table() ->
 track(#{ timestamp := Timestamp }=Event, #{ table := Table }) ->
   ets:insert(Table, {Timestamp, Event}).
 
+-spec publish(pry:event(), pry:publishers()) -> done.
+publish(_, []) -> done;
+publish(Event, [ Publisher | Rest ]) ->
+  Publisher ! Event,
+  publish(Event, Rest);
+publish(Event, #{ publishers := Publishers }) ->
+  publish(Event, Publishers);
+publish(_, _) -> done.
+
 %%====================================================================
 %% Handler functions
 %%====================================================================
 
 handle_cast({track, Event}, State) ->
   track(Event, State),
+  publish(Event, State),
   {noreply, State}.
 
 handle_call(dump, _From, #{ table := Table }=State) ->
