@@ -36,10 +36,15 @@ supervision_flags() -> #{
   peiord    => 1
  }.
 
-child_specs() -> [ #{
-  id       => pry,
+child_spec(Module, Id) -> #{
+  id       => Id,
   restart  => permanent,
   shutdown => brutal_kill,
-  start    => { pry_server, start_link, [] },
+  start    => { Module, start_link, [] },
   type     => worker
- } ].
+ }.
+
+child_specs() -> [
+                  child_spec(pry_server, pry),
+                  child_spec(pry_exporter, pry_exporter)
+                 ].
