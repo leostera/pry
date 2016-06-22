@@ -8,7 +8,9 @@
 -behaviour(gen_event).
 
 %% gen_server callbacks
--export([init/1,
+-export([
+         start_link/0,
+         init/1,
          handle_call/2,
          handle_event/2,
          handle_info/2,
@@ -20,8 +22,12 @@
 %% API functions
 %%====================================================================
 
+start_link() ->
+  gen_event:start_link({local, ?MODULE}).
+
 init(_Args) ->
   {ok, Server} = evews_sup:start_link([{port, 2112}, {ws_handler, [{callback_m, ?MODULE}, {callback_f, loop}]}]),
+  io:format("[ws@init] ~p", [Server]),
   {ok, #{ ws => Server }}.
 
 handle_info(_, State) -> {ok, State}.
@@ -41,6 +47,7 @@ parse(Term) -> jiffy:parse(Term).
 loop({Ws, WsInfo}=State) ->
   receive
     Event ->
+      io:format("[ws@loop] ~p", [Event]),
       Ws:send(Event, WsInfo),
       loop(State)
   end.
@@ -50,5 +57,6 @@ loop({Ws, WsInfo}=State) ->
 %%====================================================================
 
 handle_event(Event, #{ ws:=WS }=S) ->
+  io:format("[ws@handle_event] ~p", [Event]),
   WS ! parse(Event),
   {ok, S}.
