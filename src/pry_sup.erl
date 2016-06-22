@@ -46,5 +46,5 @@ child_spec(Module, Id) -> #{
 
 child_specs() -> [
                   child_spec(pry_server, pry),
-                  child_spec(pry_exporter, pry_exporter)
+                  child_spec(pry_publisher, pry_publisher)
                  ].
