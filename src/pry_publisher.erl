@@ -20,8 +20,8 @@
 %%====================================================================
 
 init(_Args) ->
-  %% start web_server here
-  {ok, {}}.
+  {ok, Server} = ws:start_link(ws_config()),
+  {ok, #{ ws => Server }}.
 
 handle_info(_, State) -> {ok, State}.
 
@@ -32,9 +32,20 @@ code_change(_OldVsn, State, _Extra) -> {ok, State}.
 terminate(_Reason, _State) -> ok.
 
 %%====================================================================
+%% Internal functions
+%%====================================================================
+
+ws_config() -> #{
+ host => "localhost",
+ port => "8080"
+}.
+
+parse(Term) -> jiffy:parse(Term).
+
+%%====================================================================
 %% Handler functions
 %%====================================================================
 
-handle_event(_Event, S) ->
-  %JSON = jiffy:parse(Event),
+handle_event(Event, S) ->
+  ok = ws:broadcast(parse(Event)),
   {ok, S}.
