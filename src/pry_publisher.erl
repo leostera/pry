@@ -21,7 +21,7 @@
 
 init(_Args) ->
   %% start web_server here
-  ok.
+  {ok, {}}.
 
 handle_info(_, State) -> {ok, State}.
 
