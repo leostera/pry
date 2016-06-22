@@ -13,6 +13,7 @@
          handle_event/2,
          handle_info/2,
          terminate/2,
+         loop/1,
          code_change/3]).
 
 %%====================================================================
@@ -20,7 +21,7 @@
 %%====================================================================
 
 init(_Args) ->
-  {ok, Server} = ws:start_link(ws_config()),
+  {ok, Server} = evews_sup:start_link([{port, 2112}, {ws_handler, [{callback_m, ?MODULE}, {callback_f, loop}]}]),
   {ok, #{ ws => Server }}.
 
 handle_info(_, State) -> {ok, State}.
@@ -35,17 +36,19 @@ terminate(_Reason, _State) -> ok.
 %% Internal functions
 %%====================================================================
 
-ws_config() -> #{
- host => "localhost",
- port => "8080"
-}.
-
 parse(Term) -> jiffy:parse(Term).
+
+loop({Ws, WsInfo}=State) ->
+  receive
+    Event ->
+      Ws:send(Event, WsInfo),
+      loop(State)
+  end.
 
 %%====================================================================
 %% Handler functions
 %%====================================================================
 
-handle_event(Event, S) ->
-  ok = ws:broadcast(parse(Event)),
+handle_event(Event, #{ ws:=WS }=S) ->
+  WS ! parse(Event),
   {ok, S}.

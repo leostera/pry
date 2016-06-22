@@ -1,1 +1,8 @@
-[].
+[{<<"evews">>,
+  {git,"https://github.com/hazardfn/evews.git",
+       {ref,"29955103be9c30aa578c6e557f9ddceb639e7d78"}},
+  0},
+ {<<"jiffy">>,
+  {git,"https://github.com/davisp/jiffy.git",
+       {ref,"330f41c486cf949707eb494b855634df324a6d92"}},
+  0}].
