@@ -50,6 +50,7 @@ process_info_to_map(#{
     links => [ pid_to_map(Pid) || Pid <- Links ]
   }.
 
+pid_to_map(Port) when is_port(Port) -> erlang:port_to_list(Port);
 pid_to_map(Name) when is_atom(Name) ->
   pid_to_map(whereis(Name));
 pid_to_map(Pid) when is_pid(Pid) ->
