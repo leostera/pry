@@ -54,7 +54,7 @@ filter({trace, Parent, return_from, N, {ok, Child}}=_Trace, ok) ->
   filter({trace, Parent, return_from, N, Child}, ok);
 filter({trace, _Parent, return_from, _, Child}=Trace, ok) ->
   Timestamp = os:timestamp(),
-  ProcessInfo = process_info(Child),
+  ProcessInfo = process_info(Child, process_keys()),
   case mfa_filter(ProcessInfo) of
     {ok, _}  ->
       Event = build_event(Trace, ProcessInfo, Timestamp),
@@ -81,11 +81,18 @@ mfa_filter(ProcessInfo) ->
 build_event({trace, Parent, return_from, _, Child}, ProcessInfo, Timestamp) ->
  #{
    timestamp => Timestamp,
-   parent => Parent,
-   self   => Child,
+   parent => pry_utils:pid_to_map(Parent),
+   self   => pry_utils:pid_to_map(Child),
    mfa    => pry_utils:get_mfa_from_process_info(ProcessInfo),
-   info   => ProcessInfo
+   info   => pry_utils:process_info_to_map(ProcessInfo)
   }.
+
+process_keys() -> [
+  current_function,
+  dictionary,
+  initial_call,
+  links
+].
 
 -spec track(pry:event()) -> ok.
 track(Event) ->
