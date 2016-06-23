@@ -73,7 +73,7 @@ track(#{ timestamp := Timestamp }=Event, Table) ->
 
 -spec publish(pry:event()) -> ok.
 publish(Event) ->
-  anchorman:broadcast(topic(), Event).
+  anchorman:broadcast(topic(), jsone:encode(Event)).
 
 %%====================================================================
 %% Handler functions
