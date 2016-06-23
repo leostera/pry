@@ -10,7 +10,7 @@
         ]).
 
 -spec default(atom(), pry:info(), term()) -> term().
-default(Key, Options, Default) ->
+default(Key, Options, Default) when is_list(Options) ->
   case proplists:lookup(Key, Options) of
     none -> Default;
     {Key, Val} -> Val

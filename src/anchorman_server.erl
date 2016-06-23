@@ -3,7 +3,7 @@
 %% @end
 %%%-------------------------------------------------------------------
 
--module(pry_publisher).
+-module(anchorman_server).
 
 -behaviour(gen_server).
 
@@ -17,7 +17,7 @@
 
 -export([
           name/0,
-          start_link/0
+          start_link/1
         ]).
 
 %%====================================================================
@@ -27,39 +27,51 @@
 -spec name() -> ?MODULE.
 name() -> ?MODULE.
 
--spec start_link() -> {'ok', pid()}.
-start_link() ->
-  gen_server:start_link({local, name()}, name(), [], []).
+-spec event_server_name() -> atom().
+event_server_name() -> anchorman_event_server.
+
+-spec start_link( #{} ) -> {'ok', pid()}.
+start_link(Options) ->
+  gen_server:start_link({local, name()}, name(), [Options], []).
 
 %%====================================================================
 %% Internal functions
 %%====================================================================
 
-start_default_publisher() ->
-  {ok, Server} = gen_event:start_link({local, pry_publisher_event_server}),
-  ok = gen_event:add_sup_handler(Server, pry_publisher_handler, [#{ server => Server }]),
+start_event_server() ->
+  {ok, Server} = gen_event:start_link({local, event_server_name()}),
   Server.
 
--spec initial_state(list()) -> #{}.
-initial_state(_Options) ->
+start_handlers(_, []) -> ok;
+start_handlers(EventServer, [Handler|Rest]) ->
+  gen_event:add_sup_handler(EventServer, Handler, [ #{ server => EventServer } ]),
+  start_handlers(EventServer, Rest).
+
+-spec initial_state(#{}) -> #{}.
+initial_state(Options) ->
   #{
-    event_server => start_default_publisher()
+    event_server => start_event_server(),
+    handlers => maps:get(handlers, Options, [anchorman_ws_handler])
    }.
 
 %%====================================================================
 %% Behavior functions
 %%====================================================================
 
--spec init(list()) -> {ok, #{}}.
+-spec init(#{}) -> {ok, #{}}.
 init(Options) ->
-  State = initial_state(Options),
+  #{
+     event_server := ES,
+     handlers := Handlers
+   } = State = initial_state(Options),
+  start_handlers(ES, Handlers),
   {ok, State}.
 
 handle_info(_Info, State) ->
   {noreply, State}.
 
-terminate(_Reason, _State) ->
-  pry_tracer:stop(),
+terminate(_Reason, #{ event_server := ES }=_State) ->
+  gen_event:stop(ES),
   ok.
 
 code_change(_OldVsn, State, _Extra) ->
@@ -70,8 +82,9 @@ code_change(_OldVsn, State, _Extra) ->
 %%====================================================================
 
 handle_cast(Event, State) ->
-  gen_event:notify(pry_publisher_event_server, Event),
+  gen_event:notify(event_server_name(), Event),
   {noreply, State}.
 
-handle_call(_Event, _From, State) ->
-  {reply, not_implemeneted, State}.
+handle_call(Event, From, State) ->
+  gen_event:sync_notify(event_server_name(), {Event, From}),
+  {noreply, State}.
