@@ -83,7 +83,7 @@ build_event({trace, Parent, return_from, _, Child}, ProcessInfo, Timestamp) ->
    timestamp => Timestamp,
    parent => pry_utils:pid_to_map(Parent),
    self   => pry_utils:pid_to_map(Child),
-   mfa    => pry_utils:get_mfa_from_process_info(ProcessInfo),
+   mfa    => pry_utils:mfa_to_map(pry_utils:get_mfa_from_process_info(ProcessInfo)),
    info   => pry_utils:process_info_to_map(ProcessInfo)
   }.
 
