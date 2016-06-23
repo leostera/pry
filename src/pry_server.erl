@@ -73,25 +73,14 @@ create_table() ->
 track(#{ timestamp := Timestamp }=Event, Table) ->
   ets:insert(Table, {Timestamp, Event}).
 
--spec publish(pry:event(), pry:publishers()) -> done.
-publish(_, []) -> done;
-publish(Event, [ Publisher | Rest ]) ->
-  gen_server:cast(Publisher, Event),
-  publish(Event, Rest).
-
 %%====================================================================
 %% Handler functions
 %%====================================================================
 
-handle_cast({track, Event}, #{ table := Table, publishers := Publishers }=State) ->
+handle_cast({track, Event}, #{ table := Table }=State) ->
   true = track(Event, Table),
-  done = publish(Event, Publishers),
+  done = anchorman:publish(<<"pry.track">>, Event),
   {noreply, State}.
-
-handle_call({add_publisher, Pid}, _From, #{ publishers := Publishers }=State) ->
-  NewPubs = [ Pid | Publishers ],
-  NewState = State#{ publishers => NewPubs },
-  {reply, ok, NewState};
 
 handle_call(dump, _From, #{ table := Table }=State) ->
   Reply = State#{ table => ets:tab2list(Table) },

@@ -63,18 +63,3 @@ dump() ->
 -spec dump_to_file(<<>>) -> ok.
 dump_to_file(Path) ->
   file:write_file(Path, io_lib:fwrite("~p.\n", [dump()])).
-
--spec test() -> ok.
-test() -> test(10).
-
--spec test(integer()) -> ok.
-test(N) when N =< 0 -> ok;
-test(N) ->
-  erlang:spawn(pry_blacklist, blacklist, []),
-  test(N-1).
-
--spec dummy(integer()) -> true.
-dummy(N) ->
-  receive
-  after N -> true
-  end.
