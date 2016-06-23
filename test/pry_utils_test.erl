@@ -95,3 +95,7 @@ mfa_to_map_test() ->
   ?assertEqual(fixture_mfa(m), M),
   ?assertEqual(fixture_mfa(f), F),
   ?assertEqual(fixture_mfa(a), A).
+
+default_test() ->
+  ?assertEqual(0, pry_utils:default(none, [], 0)),
+  ?assertEqual(1, pry_utils:default(none, [{none, 1}], 0)).
