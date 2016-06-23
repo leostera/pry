@@ -17,6 +17,7 @@
 
 -export([
           name/0,
+          start_link/0,
           start_link/1
         ]).
 
@@ -30,9 +31,12 @@ name() -> ?MODULE.
 -spec event_server_name() -> atom().
 event_server_name() -> anchorman_event_server.
 
+-spec start_link() -> {'ok', pid()}.
+start_link() -> start_link(#{}).
+
 -spec start_link( #{} ) -> {'ok', pid()}.
 start_link(Options) ->
-  gen_server:start_link({local, name()}, name(), [Options], []).
+  gen_server:start_link({local, name()}, name(), Options, []).
 
 %%====================================================================
 %% Internal functions
