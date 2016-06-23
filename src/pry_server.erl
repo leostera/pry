@@ -65,6 +65,9 @@ publishers(Options) ->
 -spec table_name() -> atom().
 table_name() -> pry_events.
 
+-spec topic() -> anchorman:topic().
+topic() -> <<"pry.event">>.
+
 -spec create_table() -> atom().
 create_table() ->
   ets:new(table_name(), [ named_table ]).
@@ -73,13 +76,17 @@ create_table() ->
 track(#{ timestamp := Timestamp }=Event, Table) ->
   ets:insert(Table, {Timestamp, Event}).
 
+-spec publish(pry:event()) -> ok.
+publish(Event) ->
+  anchorman:broadcast(topic(), Event).
+
 %%====================================================================
 %% Handler functions
 %%====================================================================
 
 handle_cast({track, Event}, #{ table := Table }=State) ->
   true = track(Event, Table),
-  ok = anchorman:broadcast(<<"pry.track">>, Event),
+  ok = publish(Event),
   {noreply, State}.
 
 handle_call(dump, _From, #{ table := Table }=State) ->
