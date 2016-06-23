@@ -5,12 +5,8 @@
 %%====================================================================
 
 -export([
-          add_publisher/1,
-          dummy/1,
           dump/0,
-          dump_to_file/1,
-          test/0,
-          test/1
+          dump_to_file/1
          ]).
 
 %%====================================================================
@@ -51,10 +47,6 @@
 %%====================================================================
 %% API functions
 %%====================================================================
-
--spec add_publisher(pry:publisher()) -> ok.
-add_publisher(Pid) ->
-  gen_server:call(pry_server, {add_publisher, Pid}).
 
 -spec dump() -> events().
 dump() ->

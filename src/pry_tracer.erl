@@ -97,4 +97,3 @@ process_keys() -> [
 -spec track(pry:event()) -> ok.
 track(Event) ->
   gen_server:cast(pry_server:name(), {track, Event}).
-

@@ -79,7 +79,7 @@ track(#{ timestamp := Timestamp }=Event, Table) ->
 
 handle_cast({track, Event}, #{ table := Table }=State) ->
   true = track(Event, Table),
-  done = anchorman:publish(<<"pry.track">>, Event),
+  ok = anchorman:broadcast(<<"pry.track">>, Event),
   {noreply, State}.
 
 handle_call(dump, _From, #{ table := Table }=State) ->

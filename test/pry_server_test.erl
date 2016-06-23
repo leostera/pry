@@ -19,9 +19,6 @@ start_server() ->
 stop_server()  ->
   gen_server:stop(pry_server:name()).
 
-add_publisher(Pid) ->
-  gen_server:call(pry_server:name(), {add_publisher, Pid}).
-
 
 %%====================================================================
 %% Harnessing Functions
