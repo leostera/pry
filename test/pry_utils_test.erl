@@ -96,6 +96,8 @@ mfa_to_map_test() ->
   ?assertEqual(fixture_mfa(f), F),
   ?assertEqual(fixture_mfa(a), A).
 
-default_test() ->
-  ?assertEqual(0, pry_utils:default(none, [], 0)),
-  ?assertEqual(1, pry_utils:default(none, [{none, 1}], 0)).
+default_returns_value_if_key_is_present_test() ->
+  ?assertEqual(val, pry_utils:default(key, [{key, val}], default)).
+
+default_returns_fallback_if_key_is_not_present_test() ->
+  ?assertEqual(default, pry_utils:default(key, [], default)).
