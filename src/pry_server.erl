@@ -32,11 +32,10 @@ start_link() ->
   gen_server:start_link({local, name()}, name(), [], []).
 
 -spec initial_state(list()) -> #{}.
-initial_state(Options) ->
+initial_state(_Options) ->
   #{
     table => create_table(),
-    tracer => pry_tracer:start(),
-    publishers => publishers(Options)
+    tracer => pry_tracer:start()
    }.
 
 -spec init(list()) -> {ok, #{}}.
@@ -57,10 +56,6 @@ code_change(_OldVsn, State, _Extra) ->
 %%====================================================================
 %% Internal functions
 %%====================================================================
-
--spec publishers(pry:info()) -> pry:publishers().
-publishers(Options) ->
-  [ pry_publisher | pry_utils:default(publishers, Options, []) ].
 
 -spec table_name() -> atom().
 table_name() -> pry_events.
