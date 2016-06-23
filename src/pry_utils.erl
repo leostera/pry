@@ -6,7 +6,8 @@
          get_mfa_from_process_info/1,
          mfa_to_map/1,
          pid_to_map/1,
-         process_info_to_map/1
+         process_info_to_map/1,
+         timestamp_to_integer/1
         ]).
 
 -spec default(atom(), pry:info(), term()) -> term().
@@ -71,3 +72,7 @@ mfa_to_map({M, F, A}) ->
     function => F,
     arity => A
    }.
+
+timestamp_to_integer({T0, T1, T2}) ->
+  {Int, _} = string:to_integer(string:join(io_lib:format("~p~p~p", [T0,T1,T2]),"")),
+  Int.

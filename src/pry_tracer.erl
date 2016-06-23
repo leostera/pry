@@ -78,9 +78,9 @@ mfa_filter(ProcessInfo) ->
   end.
 
 -spec build_event(pry:trace_result(), pry:process_info(), pry:timestamp()) -> pry:event().
-build_event({trace, Parent, return_from, _, Child}, ProcessInfo, {T0,T1,T2}=Timestamp) ->
+build_event({trace, Parent, return_from, _, Child}, ProcessInfo, Timestamp) ->
  #{
-   timestamp  => string:join(io_lib:format("~p~p~p", [T0,T1,T2]),""),
+   timestamp  => pry_utils:timestamp_to_integer(Timestamp),
    created_at => calendar:now_to_universal_time(Timestamp),
    parent_pid => pry_utils:pid_to_map(Parent),
    self_pid   => pry_utils:pid_to_map(Child),
