@@ -65,6 +65,9 @@ pid_to_map({{Node, _}, {Index, _}, {Wrap, _}}) ->
     wrap  => Wrap
    }.
 
-mfa_to_map({M, F, A}) -> #{ module => M,
-                            function => F,
-                            arity => A }.
+mfa_to_map({M, F, A}) ->
+  #{
+    module => M,
+    function => F,
+    arity => A
+   }.
