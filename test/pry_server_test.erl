@@ -48,27 +48,6 @@ afterEach(_Result) -> stop_server().
 %% Tests
 %%====================================================================
 
-server_publishes_whitelisted_traces_test_() -> ?it(fun () ->
-  ?assertEqual(0, event_count()),
-  add_publisher(self()),
-  traceable_spawn(),
-  traceable_spawn_link(),
-  receive #{ mfa := MFA } ->
-    ?assertEqual(MFA, traceable(ms))
-  end
-end).
-
-server_doesnt_publish_blacklisted_traces_test_() -> ?it(fun () ->
-  add_publisher(self()),
-  ?assertEqual(0, event_count()),
-  ignoreable_spawn(),
-  ignoreable_spawn_link(),
-  receive _ -> ?assert(false)
-  after  20 -> ?assert(true)
-  end,
-  ?assertEqual(0, event_count())
-end).
-
 server_creates_a_new_table_test_() -> ?it(fun () ->
   ?assertEqual(0, event_count())
 end).
