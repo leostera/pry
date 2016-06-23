@@ -60,7 +60,7 @@ code_change(_OldVsn, State, _Extra) ->
 
 -spec publishers(pry:info()) -> pry:publishers().
 publishers(Options) ->
-  [ self() | pry_utils:default(publishers, Options, []) ].
+  [ pry_publisher | pry_utils:default(publishers, Options, []) ].
 
 -spec table_name() -> atom().
 table_name() -> pry_events.
@@ -76,7 +76,7 @@ track(#{ timestamp := Timestamp }=Event, Table) ->
 -spec publish(pry:event(), pry:publishers()) -> done.
 publish(_, []) -> done;
 publish(Event, [ Publisher | Rest ]) ->
-  Publisher ! Event,
+  gen_server:cast(Publisher, Event),
   publish(Event, Rest).
 
 %%====================================================================

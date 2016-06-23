@@ -1,4 +1,4 @@
-.PHONY: all test eunit check ct compile sh
+.PHONY: all test eunit check ct compile sh clean
 
 REBAR=./rebar3
 
@@ -20,3 +20,6 @@ check:
 
 sh:
 	$(REBAR) shell
+
+clean:
+	$(REBAR) clean

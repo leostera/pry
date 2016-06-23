@@ -5,58 +5,73 @@
 
 -module(pry_publisher).
 
--behaviour(gen_event).
+-behaviour(gen_server).
 
 %% gen_server callbacks
--export([
-         start_link/0,
-         init/1,
-         handle_call/2,
-         handle_event/2,
+-export([init/1,
+         handle_call/3,
+         handle_cast/2,
          handle_info/2,
          terminate/2,
-         loop/1,
          code_change/3]).
+
+-export([
+          name/0,
+          start_link/0
+        ]).
 
 %%====================================================================
 %% API functions
 %%====================================================================
 
+-spec name() -> ?MODULE.
+name() -> ?MODULE.
+
+-spec start_link() -> {'ok', pid()}.
 start_link() ->
-  gen_event:start_link({local, ?MODULE}).
-
-init(_Args) ->
-  {ok, Server} = evews_sup:start_link([{port, 2112}, {ws_handler, [{callback_m, ?MODULE}, {callback_f, loop}]}]),
-  io:format("[ws@init] ~p", [Server]),
-  {ok, #{ ws => Server }}.
-
-handle_info(_, State) -> {ok, State}.
-
-handle_call(_, S) -> {ok, ok, S}.
-
-code_change(_OldVsn, State, _Extra) -> {ok, State}.
-
-terminate(_Reason, _State) -> ok.
+  gen_server:start_link({local, name()}, name(), [], []).
 
 %%====================================================================
 %% Internal functions
 %%====================================================================
 
-parse(Term) -> jiffy:parse(Term).
+start_default_publisher() ->
+  {ok, Server} = gen_event:start_link({local, pry_publisher_event_server}),
+  ok = gen_event:add_sup_handler(Server, pry_publisher_handler, [#{ server => Server }]),
+  Server.
 
-loop({Ws, WsInfo}=State) ->
-  receive
-    Event ->
-      io:format("[ws@loop] ~p", [Event]),
-      Ws:send(Event, WsInfo),
-      loop(State)
-  end.
+-spec initial_state(list()) -> #{}.
+initial_state(_Options) ->
+  #{
+    event_server => start_default_publisher()
+   }.
+
+%%====================================================================
+%% Behavior functions
+%%====================================================================
+
+-spec init(list()) -> {ok, #{}}.
+init(Options) ->
+  State = initial_state(Options),
+  {ok, State}.
+
+handle_info(_Info, State) ->
+  {noreply, State}.
+
+terminate(_Reason, _State) ->
+  pry_tracer:stop(),
+  ok.
+
+code_change(_OldVsn, State, _Extra) ->
+  {ok, State}.
 
 %%====================================================================
 %% Handler functions
 %%====================================================================
 
-handle_event(Event, #{ ws:=WS }=S) ->
-  io:format("[ws@handle_event] ~p", [Event]),
-  WS ! parse(Event),
-  {ok, S}.
+handle_cast(Event, State) ->
+  gen_event:notify(pry_publisher_event_server, Event),
+  {noreply, State}.
+
+handle_call(_Event, _From, State) ->
+  {reply, not_implemeneted, State}.
