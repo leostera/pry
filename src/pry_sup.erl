@@ -44,6 +44,5 @@ child_spec(Module, Id) -> #{
  }.
 
 child_specs() -> [
-                  child_spec(pry_server, pry),
-                  child_spec(anchorman_server, anchorman)
+                  child_spec(pry_server, pry)
                  ].

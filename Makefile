@@ -23,3 +23,4 @@ sh:
 
 clean:
 	$(REBAR) clean
+	rm -rf _build
