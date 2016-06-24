@@ -57,6 +57,7 @@ filter({trace, _Parent, return_from, _, Child}=Trace, ok) ->
   ProcessInfo = process_info(Child, process_keys()),
   case mfa_filter(ProcessInfo) of
     {ok, _}  ->
+      io:format("Whitelisted ~p", [ProcessInfo]),
       Event = build_event(Trace, ProcessInfo, Timestamp),
       track(Event)
       %% setup link to know when it dies
@@ -97,4 +98,5 @@ process_keys() -> [
 
 -spec track(pry:event()) -> ok.
 track(Event) ->
+  io:format("Tracking ~p", [Event]),
   gen_server:cast(pry_server:name(), {track, Event}).

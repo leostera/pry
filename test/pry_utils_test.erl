@@ -74,7 +74,14 @@ process_info_to_map_test() ->
   ?assertEqual(Links, [pry_utils:pid_to_map(fixture_pid())]),
   ?assertEqual(CF, pry_utils:mfa_to_map(fixture_mfa())),
   ?assertEqual(IC, pry_utils:mfa_to_map(fixture_mfa())),
-  ?assertEqual(Dict, maps:from_list(fixture_dictionary(body))).
+  ?assertEqual(Dict, pry_utils:process_dict_to_map(fixture_dictionary(body))).
+
+process_dict_to_map_test() ->
+  Fixture = fixture_dictionary(body),
+  #{
+    '$initial_call' := IC
+  }=pry_utils:process_dict_to_map(Fixture),
+  ?assertEqual(IC, pry_utils:mfa_to_map(fixture_mfa())).
 
 pid_to_map_test() ->
   Fixture = fixture_pid(),

@@ -7,6 +7,7 @@
          mfa_to_map/1,
          pid_to_map/1,
          process_info_to_map/1,
+         process_dict_to_map/1,
          timestamp_to_integer/1
         ]).
 
@@ -45,10 +46,18 @@ process_info_to_map(#{
                      }=Info) ->
   Info#{
     current_function => mfa_to_map(CF),
-    dictionary => maps:from_list(Dict),
+    dictionary => process_dict_to_map(Dict),
     initial_call => mfa_to_map(IC),
     links => [ pid_to_map(Pid) || Pid <- Links ]
   }.
+
+process_dict_to_map(#{ '$ancestors' := A }=Map) when is_list(A) ->
+  process_dict_to_map( Map#{ '$ancestors' => [ pid_to_map(Pid) || Pid <- A ] } );
+process_dict_to_map(#{ '$initial_call' := IC }=Map) when is_tuple(IC) ->
+  process_dict_to_map( Map#{ '$initial_call' => mfa_to_map(IC) } );
+process_dict_to_map(Dict) when is_list(Dict) ->
+  process_dict_to_map( maps:from_list(Dict) );
+process_dict_to_map(Map) -> Map.
 
 pid_to_map(Port) when is_port(Port) -> erlang:port_to_list(Port);
 pid_to_map(Name) when is_atom(Name) ->
