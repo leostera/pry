@@ -1,15 +1,16 @@
 {application, pry,
- [{description, "An OTP application"},
+ [{description, "Pry your supervision trees"},
   {vsn, "0.1.0"},
-  {registered, []},
+  {registered, [pry]},
   {mod, { pry_app, []}},
   {applications,
    [kernel,
-    stdlib
+    stdlib,
+    anchorman
    ]},
   {env,[]},
-  {modules, []},
-  {maintainers, []},
-  {licenses, []},
-  {links, []}
+  {modules, [pry]},
+  {maintainers, ["Leandro Ostera <leandro@ostera.io>"]},
+  {licenses, ["MIT"]},
+  {links, ["https://github.com/ostera/pry"]}
  ]}.
