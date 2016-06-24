@@ -51,7 +51,7 @@ process_info_to_map(#{
     links => [ pid_to_map(Pid) || Pid <- Links ]
   }.
 
-process_dict_to_map(#{ '$ancestors' := A }=Map) when is_list(A) ->
+process_dict_to_map(#{ '$ancestors' := [H|_]=A }=Map) when is_pid(H) ->
   process_dict_to_map( Map#{ '$ancestors' => [ pid_to_map(Pid) || Pid <- A ] } );
 process_dict_to_map(#{ '$initial_call' := IC }=Map) when is_tuple(IC) ->
   process_dict_to_map( Map#{ '$initial_call' => mfa_to_map(IC) } );
@@ -74,7 +74,8 @@ pid_to_map({{Node, _}, {Index, _}, {Wrap, _}}) ->
     node  => Node,
     index => Index,
     wrap  => Wrap
-   }.
+   };
+pid_to_map(Map) -> Map.
 
 mfa_to_map({M, F, A}) ->
   #{
