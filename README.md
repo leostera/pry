@@ -1,5 +1,5 @@
 # Pry [![Travis-CI](https://api.travis-ci.org/ostera/pry.svg)](https://travis-ci.org/ostera/pry)
-> Watch your application spawn an unfold right in front of you 🔭
+> 🔭 An Erlang application for observing supervision trees
 
 As of right now, `pry` is just a very simple application that will trace and store all of
 `erlang:spawn` and `erlang:spawn_link` calls being made for any non-standard Erlang module.
