@@ -6,7 +6,23 @@ As of right now, `pry` is just a very simple application that will trace and sto
 
 Have a look at `pry_blacklist` to see exactly what's being ignored.
 
-## Tutorial
+## Installation
+
+Simply include in your `rebar.config` as:
+
+```erlang
+{deps, [
+  % ...
+  {pry, {git, "https://github.com/ostera/pry", {tag, "0.1.0"}}}
+  % ...
+]}.
+```
+## Usage
+
+Include `pry` in your application start up list, before your actual application,
+so it'll start tracking everything.
+
+#### Shell Sesssion Tutorial
 
 ```erlang
 Eshell V7.3  (abort with ^G)
@@ -72,7 +88,7 @@ Shell got #{info => [{registered_name,schrodinger_lab},
 ok
 ```
 
-## Event format
+#### Event format
 
 
 ```erlang
@@ -94,6 +110,26 @@ ok
 }
 ```
 
+## Motivation
+
+Inspired by Ruby's [pry](https://github.com/pry/pry), I set forth to make a tool
+that would collect, format, and export as much information of the running process
+trees as they were being created and destroyed.
+
+The goal of pry is to be a drop-in tool to get a  
+
+## Contributing
+
+Fork, make a topic branch, and send a Pull Request. Travis will let you know if
+it's good to go, and from the on we can review, retouch, and merge.
+
+Included here is a `Makefile` with handy targets. Run `make` to execute the complete
+battery of tests.
+
 ## Next Steps
 
 See the [issues page](https://github.com/ostera/pry/issues?q=is%3Aopen+is%3Aissue+label%3Aenhancement) for a list of planned enhancements and features.
+
+## License
+
+See [LICENSE](https://github.com/ostera/pry/blob/master/LICENSE).
