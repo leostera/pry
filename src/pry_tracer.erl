@@ -54,9 +54,10 @@ filter({trace, Parent, return_from, N, {ok, Child}}=_Trace, ok) ->
   filter({trace, Parent, return_from, N, Child}, ok);
 filter({trace, _Parent, return_from, _, Child}=Trace, ok) ->
   Timestamp = os:timestamp(),
-  ProcessInfo = process_info(Child),
+  ProcessInfo = process_info(Child, process_keys()),
   case mfa_filter(ProcessInfo) of
     {ok, _}  ->
+      io:format("Whitelisted ~p", [ProcessInfo]),
       Event = build_event(Trace, ProcessInfo, Timestamp),
       track(Event)
       %% setup link to know when it dies
@@ -80,14 +81,22 @@ mfa_filter(ProcessInfo) ->
 -spec build_event(pry:trace_result(), pry:process_info(), pry:timestamp()) -> pry:event().
 build_event({trace, Parent, return_from, _, Child}, ProcessInfo, Timestamp) ->
  #{
-   timestamp => Timestamp,
-   parent => Parent,
-   self   => Child,
-   mfa    => pry_utils:get_mfa_from_process_info(ProcessInfo),
-   info   => ProcessInfo
+   timestamp  => pry_utils:timestamp_to_integer(Timestamp),
+   created_at => calendar:now_to_universal_time(Timestamp),
+   parent_pid => pry_utils:pid_to_map(Parent),
+   self_pid   => pry_utils:pid_to_map(Child),
+   mfa        => pry_utils:mfa_to_map(pry_utils:get_mfa_from_process_info(ProcessInfo)),
+   metadata   => pry_utils:process_info_to_map(ProcessInfo)
   }.
+
+process_keys() -> [
+  current_function,
+  dictionary,
+  initial_call,
+  links
+].
 
 -spec track(pry:event()) -> ok.
 track(Event) ->
+  io:format("Tracking ~p", [Event]),
   gen_server:cast(pry_server:name(), {track, Event}).
-

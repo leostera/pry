@@ -17,6 +17,7 @@ Simply include in your `rebar.config` as:
   % ...
 ]}.
 ```
+
 ## Usage
 
 Include `pry` in your application start up list, before your actual application,

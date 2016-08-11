@@ -31,15 +31,14 @@ name() -> ?MODULE.
 start_link() ->
   gen_server:start_link({local, name()}, name(), [], []).
 
--spec initial_state(list()) -> #{}.
-initial_state(Options) ->
+-spec initial_state(list()) -> pry:server_state().
+initial_state(_Options) ->
   #{
     table => create_table(),
-    tracer => pry_tracer:start(),
-    publishers => publishers(Options)
+    tracer => pry_tracer:start()
    }.
 
--spec init(list()) -> {ok, #{}}.
+-spec init(list()) -> {ok, pry:server_state()}.
 init(Options) ->
   State = initial_state(Options),
   {ok, State}.
@@ -58,12 +57,11 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal functions
 %%====================================================================
 
--spec publishers(pry:info()) -> pry:publishers().
-publishers(Options) ->
-  [ self() | pry_utils:default(publishers, Options, []) ].
-
 -spec table_name() -> atom().
 table_name() -> pry_events.
+
+-spec topic() -> anchorman:topic().
+topic() -> <<"pry.event">>.
 
 -spec create_table() -> atom().
 create_table() ->
@@ -73,25 +71,18 @@ create_table() ->
 track(#{ timestamp := Timestamp }=Event, Table) ->
   ets:insert(Table, {Timestamp, Event}).
 
--spec publish(pry:event(), pry:publishers()) -> done.
-publish(_, []) -> done;
-publish(Event, [ Publisher | Rest ]) ->
-  Publisher ! Event,
-  publish(Event, Rest).
+-spec publish(pry:event()) -> ok.
+publish(Event) ->
+  anchorman:broadcast(topic(), jsone:encode(Event)).
 
 %%====================================================================
 %% Handler functions
 %%====================================================================
 
-handle_cast({track, Event}, #{ table := Table, publishers := Publishers }=State) ->
+handle_cast({track, Event}, #{ table := Table }=State) ->
   true = track(Event, Table),
-  done = publish(Event, Publishers),
+  ok = publish(Event),
   {noreply, State}.
-
-handle_call({add_publisher, Pid}, _From, #{ publishers := Publishers }=State) ->
-  NewPubs = [ Pid | Publishers ],
-  NewState = State#{ publishers => NewPubs },
-  {reply, ok, NewState};
 
 handle_call(dump, _From, #{ table := Table }=State) ->
   Reply = State#{ table => ets:tab2list(Table) },
