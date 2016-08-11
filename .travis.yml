@@ -7,5 +7,5 @@ otp_release:
 script:
     - make compile
     - make check
-    - make eunit
+    - make unit
     - make ct
