@@ -20,7 +20,10 @@
 -type key()   :: atom().
 -type info()  :: undefined | [ {key(), value()} ].
 
--type event()  :: #{}.
+-type event()  :: #{
+        timestamp := timestamp()
+       }.
+
 -type events() :: [ {timestamp(), event()} ].
 
 -type server_state() :: #{
