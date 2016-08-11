@@ -117,7 +117,8 @@ Inspired by Ruby's [pry](https://github.com/pry/pry), I set forth to make a tool
 that would collect, format, and export as much information of the running process
 trees as they were being created and destroyed.
 
-The goal of pry is to be a drop-in tool to get a  
+The goal of pry is to be a drop-in tool to get an exploratory view of your running
+erlang system.
 
 ## Contributing
 
