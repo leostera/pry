@@ -1,9 +1,5 @@
 language: erlang
 
-cache:
-  directories:
-    - _build/default/*plt
-
 otp_release:
     - 18.3
     - 19.0
