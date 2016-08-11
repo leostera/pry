@@ -23,7 +23,10 @@
 -type event()  :: #{}.
 -type events() :: [ {timestamp(), event()} ].
 
--type server_state() :: #{}.
+-type server_state() :: #{
+        table := atom(),
+        tracer := pid()
+       }.
 
 -type trace_result() :: {trace, pid(), return_from, term(), pid()}.
 
