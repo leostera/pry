@@ -20,8 +20,19 @@
 -type key()   :: atom().
 -type info()  :: undefined | [ {key(), value()} ].
 
+-type mfa_map()   :: #{
+        arity := integer(),
+        module := atom(),
+        function := atom()
+       }.
+
 -type event()  :: #{
-        timestamp := timestamp()
+        timestamp  := timestamp(),
+        created_at := calendar:datetime(),
+        parent_pid := pid(),
+        self_pid   := pid(),
+        mfa        := mfa_map(),
+        metadata   := map()
        }.
 
 -type events() :: [ {timestamp(), event()} ].
