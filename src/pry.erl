@@ -21,25 +21,25 @@
 -type info()  :: undefined | [ {key(), value()} ].
 
 -type mfa_map()   :: #{
-        arity := integer(),
-        module := atom(),
-        function := atom()
+        arity    => integer(),
+        function => atom(),
+        module   => atom()
        }.
 
 -type event()  :: #{
-        timestamp  := timestamp(),
-        created_at := calendar:datetime(),
-        parent_pid := pid(),
-        self_pid   := pid(),
-        mfa        := mfa_map(),
-        metadata   := map()
+        created_at => calendar:datetime(),
+        metadata   => map(),
+        mfa        => mfa_map(),
+        parent_pid => pid(),
+        self_pid   => pid(),
+        timestamp  => timestamp()
        }.
 
 -type events() :: [ {timestamp(), event()} ].
 
 -type server_state() :: #{
-        table := atom(),
-        tracer := pid()
+        table  => atom(),
+        tracer => pid()
        }.
 
 -type trace_result() :: {trace, pid(), return_from, term(), pid()}.
