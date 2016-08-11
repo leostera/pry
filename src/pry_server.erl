@@ -31,14 +31,14 @@ name() -> ?MODULE.
 start_link() ->
   gen_server:start_link({local, name()}, name(), [], []).
 
--spec initial_state(list()) -> #{}.
+-spec initial_state(list()) -> pry:server_state().
 initial_state(_Options) ->
   #{
     table => create_table(),
     tracer => pry_tracer:start()
    }.
 
--spec init(list()) -> {ok, #{}}.
+-spec init(list()) -> {ok, pry:server_state()}.
 init(Options) ->
   State = initial_state(Options),
   {ok, State}.
